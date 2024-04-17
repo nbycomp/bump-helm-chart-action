@@ -43,6 +43,7 @@ runs:
       run: |
         version=$(pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }})
         echo "version=$version" >> $GITHUB_OUTPUT
+        echo "CHART_VERSION=$version" >> $GITHUB_ENV
       shell: bash
     - name: Output Name
       id: chart-name
