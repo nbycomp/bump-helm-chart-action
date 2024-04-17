@@ -6,7 +6,7 @@ branding:
 inputs:
   app_version:
     description: to also bump app-version
-    default: "true"
+    default: "false"
     required: false
   level:
     description: patch/minor/major
@@ -15,9 +15,15 @@ inputs:
     description: the directory path to the specified chart (without / at the end)
     required: true
 outputs:
+  app-version:
+    description: "Updated App version"
+    value: ${{ steps.app-version-bump.outputs.version }}
   chart:
-    description: "Chart name"    
+    description: "Chart name"
     value: ${{ steps.chart-name.outputs.chart }}
+  chart-version:
+    description: "Updated Chart version"
+    value: ${{ steps.chart-version-bump.outputs.version }}
 runs:
   using: "composite"
   steps:
@@ -25,17 +31,21 @@ runs:
       run: |
         python3 -m pip install pybump
       shell: bash
-    - name: Automated Version Bump
-      id: version-bump
+    - name: Bump App Version
+      id: app-version-bump
       run: |
-        if [[ ${{ fromJSON(inputs.app_version) }} ]]
-        then
-          pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }} --app-version
-        fi        
-        pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }}
-      shell: bash        
+        version=$(pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }} --app-version)
+        echo "version=$version" >> $GITHUB_OUTPUT
+      if: inputs.app_version == 'true'
+      shell: bash
+    - name: Automated Version Bump
+      id: chart-version-bump
+      run: |
+        version=$(pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }})
+        echo "version=$version" >> $GITHUB_OUTPUT
+      shell: bash
     - name: Output Name
       id: chart-name
       run: |
-        echo "::set-output name=chart::$(basename ${{ inputs.chart-path }})"
+        echo "chart=$(basename ${{ inputs.chart-path }})" >> $GITHUB_OUTPUT
       shell: bash
