@@ -4,7 +4,7 @@ branding:
   icon: hard-drive
   color: blue
 inputs:
-  app_version:
+  app-version:
     description: to also bump app-version
     default: "false"
     required: false
@@ -36,7 +36,7 @@ runs:
       run: |
         version=$(pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }} --app-version)
         echo "version=$version" >> $GITHUB_OUTPUT
-      if: inputs.app_version == 'true'
+      if: inputs.app-version == 'true'
       shell: bash
     - name: Automated Version Bump
       id: chart-version-bump
