@@ -41,7 +41,9 @@ runs:
     - name: Automated Version Bump
       id: chart-version-bump
       run: |
-        version=$(pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }})
+        pybump bump --file ${{ inputs.chart-path }}/Chart.yaml --level ${{ inputs.level }}
+        semver=$(pybump get --file ${{ inputs.chart-path }}/Chart.yaml --sem-ver)
+        version=$(pybump set --file ${{ inputs.chart-path }}/Chart.yaml --set-version "$semver")
         echo "version=$version" >> $GITHUB_OUTPUT
         echo "CHART_VERSION=$version" >> $GITHUB_ENV
       shell: bash
